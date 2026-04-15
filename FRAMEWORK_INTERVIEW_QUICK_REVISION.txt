@@ -1,0 +1,84 @@
+PLAYWRIGHT FRAMEWORK - QUICK REVISION (5 MINUTES)
+
+1) ONE-LINE INTRO
+I built a scalable Playwright automation framework in TypeScript (CommonJS) using POM, custom fixtures, environment-driven config, tag-based execution, hybrid UI+API testing, and CI matrix runs.
+
+
+2) WHAT I BUILT
+- TypeScript + CommonJS framework
+- Page Object Model (pages folder)
+- Reusable fixture layer (fixtures/test.fixture.ts)
+- Env config (config/env.config.ts)
+- Test data management (test-data/users.json + utils/data-loader.ts)
+- Smoke and regression suites
+- Tag execution: @smoke, @regression
+- API utility client for hybrid tests
+- HTML reporting + trace/video/screenshot on failures
+- GitHub Actions CI matrix (browsers + envs)
+
+
+3) WHY THIS DESIGN
+- POM: maintainability and readable tests
+- Fixtures: reusable setup and dependency injection
+- Env config: run same tests across envs without code changes
+- Tags: flexible CI/local filtering
+- Hybrid UI+API: stronger validation and faster feedback
+- Single worker/browser default: easy debugging and stable demo runs
+
+
+4) PROJECT FLOW (HOW IT RUNS)
+Command -> playwright.config.ts -> env.config.ts -> fixtures inject dependencies ->
+tests call page objects/API utils -> assertions run -> report + artifacts generated.
+
+
+5) KEY ENV VARIABLES
+- TEST_ENV
+- BASE_URL
+- API_BASE_URL
+- HEADLESS
+- SLOW_MO_MS
+- PW_WORKERS
+- PW_BROWSERS
+- TEST_TIMEOUT_MS
+
+
+6) IMPORTANT COMMANDS
+- npm run test:smoke
+- npm run test:regression
+- npm run test:tag:smoke
+- npm run test:tag:regression
+- npm run test:headed
+- npm run test:headless
+- npm run report
+
+
+7) CI TALKING POINT
+Smoke runs in matrix (chromium/firefox/webkit x qa/staging), regression runs separately, HTML reports are uploaded as artifacts.
+
+
+8) INTERVIEWER FAQ - FAST ANSWERS
+Q: Why POM?
+A: Centralized selectors/actions, less duplication, easier maintenance.
+
+Q: How is framework scalable?
+A: Clear separation: config, fixtures, pages, tests, data, utils; plus tag and CI strategy.
+
+Q: How do you run suites selectively?
+A: Folder-based and tag-based grep execution.
+
+Q: Why hybrid API + UI?
+A: API validates data fast; UI validates customer-facing behavior.
+
+Q: How do you support multiple environments?
+A: Env vars and centralized env config; no test code changes required.
+
+
+9) TRADE-OFFS TO MENTION
+- 1 worker default is slower but easier to observe/debug.
+- CI matrix increases confidence but also build time/cost.
+- POM has setup overhead but pays off as suites grow.
+
+
+10) CLOSING LINE
+This framework is intentionally production-style but not overengineered: clean architecture, strong reusability, CI-ready, and easy to scale as test coverage grows.
+

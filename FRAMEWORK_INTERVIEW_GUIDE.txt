@@ -1,0 +1,310 @@
+PLAYWRIGHT TYPESCRIPT FRAMEWORK - INTERVIEW GUIDE
+Project: Practice Software Testing (https://practicesoftwaretesting.com)
+Tech Stack: Playwright + TypeScript + CommonJS + Page Object Model
+
+========================================================================
+1) ELEVATOR PITCH (30-60 SECONDS)
+========================================================================
+I built a clean, scalable Playwright automation framework in TypeScript using CommonJS modules.
+The framework follows Page Object Model, supports reusable fixtures, environment-based configuration,
+tag-based execution (@smoke, @regression), hybrid UI + API validation, HTML reporting, and CI matrix
+execution across multiple browsers and environments. I intentionally kept it simple but industry-style:
+easy to maintain, easy to scale, and easy for teams to onboard.
+
+
+========================================================================
+2) WHAT I BUILT (HIGH LEVEL)
+========================================================================
+Core capabilities implemented:
+
+1. TypeScript-only test framework (no JavaScript test code)
+2. CommonJS-based project configuration
+3. Page Object Model for UI abstraction
+4. Reusable custom fixture layer
+5. Test data management via JSON + utility loader
+6. Environment configuration via centralized config + env vars
+7. Smoke and regression suite separation
+8. Tag-based execution with @smoke and @regression
+9. Hybrid API + UI testing support via API utility client
+10. HTML report generation + failure artifacts
+11. CI workflow with matrix strategy (browser + environment)
+12. Single-browser/single-worker default for easier debugging and demo
+
+
+========================================================================
+3) PROJECT STRUCTURE EXPLAINED
+========================================================================
+config/
+- env.config.ts
+  Central place for runtime settings:
+  base URL, API URL, timeout, headless mode, slow motion, workers, browsers.
+
+fixtures/
+- test.fixture.ts
+  Extends Playwright test with custom app fixtures:
+  page objects + test data + API client.
+
+pages/
+- base.page.ts
+  Shared reusable helper methods for page classes.
+- home.page.ts, login.page.ts, search.page.ts, cart.page.ts
+  Encapsulated selectors and actions for each functional area.
+
+test-data/
+- users.json
+  Static test credentials and data, separate from test logic.
+
+tests/smoke/
+- login, search, add-to-cart critical flow tests
+
+tests/regression/
+- catalog UI regression test
+- catalog API + UI hybrid test
+
+utils/
+- types.ts
+  Shared types/interfaces.
+- data-loader.ts
+  Utility for loading JSON test data.
+- api-client.ts
+  Reusable API layer for backend validation and hybrid tests.
+
+.github/workflows/
+- playwright.yml
+  CI setup with smoke matrix (browser/environment) + regression job.
+
+playwright.config.ts
+- Global Playwright behavior + project selection + reporters.
+
+
+========================================================================
+4) WHY THIS APPROACH (DESIGN DECISIONS)
+========================================================================
+A) Why TypeScript?
+- Compile-time type safety
+- Better autocomplete/refactoring
+- Cleaner long-term maintainability for larger test suites
+
+B) Why CommonJS?
+- Requirement-driven choice
+- Works well in Node ecosystem and this project setup
+
+C) Why Page Object Model (POM)?
+- Keeps selectors and UI actions centralized
+- Reduces duplication in tests
+- UI changes are fixed in one place
+- Improves readability: tests focus on intent, not locator noise
+
+D) Why fixtures?
+- Dependency injection style for tests
+- Reusable setup with less boilerplate
+- Standardized access to page objects, data, and API utilities
+
+E) Why tag-based execution?
+- Flexible suite selection beyond folders
+- Useful for CI pipelines and selective runs
+- Easy to scale with future tags like @critical, @api, @e2e
+
+F) Why hybrid UI + API testing?
+- Faster and stronger validation
+- API can prepare/validate data while UI verifies user experience
+- Catches integration-level defects earlier
+
+G) Why single-worker/single-browser default?
+- Better for observation/debugging/interviews
+- Stable and deterministic local runs
+- Can still scale in CI using browser matrix
+
+H) Why CI matrix?
+- Demonstrates cross-browser confidence
+- Demonstrates environment-aware execution
+- Portfolio-friendly and production-like
+
+
+========================================================================
+5) HOW IT WORKS END-TO-END (EXECUTION FLOW)
+========================================================================
+1. Command runs (example: npm run test:tag:smoke)
+2. Playwright reads playwright.config.ts
+3. Config imports env config from config/env.config.ts
+4. Environment variables decide base URL, browser list, workers, mode, etc.
+5. Tests import custom fixture from fixtures/test.fixture.ts
+6. Fixture injects page objects/API client/data into each test
+7. Tests call page methods (POM), not raw selectors directly
+8. Playwright executes tests with configured reporter/traces/screenshots/videos
+9. HTML report and artifacts are generated
+10. In CI, matrix runs smoke across browsers/envs and uploads artifacts
+
+
+========================================================================
+6) FUNCTIONALITIES IMPLEMENTED (DETAILED)
+========================================================================
+1. Environment Config
+- Supports: TEST_ENV, BASE_URL, API_BASE_URL, HEADLESS, SLOW_MO_MS,
+  PW_WORKERS, PW_BROWSERS, TEST_TIMEOUT_MS
+- Centralized and override-friendly
+
+2. Reusable Fixture
+- Injects:
+  - homePage
+  - loginPage
+  - searchPage
+  - cartPage
+  - apiClient
+  - testData
+
+3. Smoke Coverage
+- Login flow
+- Search flow
+- Add to cart flow
+
+4. Regression Coverage
+- Catalog load sanity
+- API + UI product visibility consistency
+
+5. Reporting
+- HTML report
+- list reporter
+- screenshot on failure
+- video retained on failure
+- trace on first retry
+
+6. CI
+- Smoke matrix:
+  browsers = chromium/firefox/webkit
+  envs = qa/staging
+- Regression run:
+  chromium + qa
+- Artifact upload for report review
+
+
+========================================================================
+7) INTERVIEWER QUESTIONS - SUGGESTED ANSWERS
+========================================================================
+Q1) What kind of framework did you build?
+Answer:
+I built a modular Playwright automation framework in TypeScript with CommonJS.
+It uses Page Object Model, custom fixtures, environment-based runtime config,
+tag-based execution, and CI matrix strategy for cross-browser confidence.
+
+Q2) Why not write raw tests directly without POM?
+Answer:
+Raw tests get hard to maintain as suite size grows. POM centralizes locators and
+common actions, so UI changes require minimal updates and tests remain readable.
+
+Q3) How did you make it scalable?
+Answer:
+Scalability comes from separation of concerns:
+config (runtime), fixtures (dependency injection), pages (UI abstraction),
+tests (business scenarios), test-data (data separation), utils (reusable helpers),
+and CI matrix for execution scale.
+
+Q4) How do you run smoke vs regression?
+Answer:
+Two ways:
+1) Folder-based: tests/smoke and tests/regression
+2) Tag-based: --grep @smoke or --grep @regression
+This gives flexibility for local and CI pipelines.
+
+Q5) How do you handle test data?
+Answer:
+I externalized data to JSON and load it via a utility function. This avoids hardcoding
+and supports easy environment or role-specific expansion later.
+
+Q6) How do you support multiple environments?
+Answer:
+I use env.config.ts + process env overrides. The same tests run across environments
+by changing TEST_ENV/BASE_URL/API_BASE_URL, without changing test code.
+
+Q7) How did you improve reliability?
+Answer:
+I used stable role/data-test selectors where possible, explicit assertions,
+artifact capture (trace/video/screenshot), and controlled local concurrency (1 worker).
+
+Q8) Why hybrid API + UI tests?
+Answer:
+API checks validate backend data quickly; UI checks validate user-visible behavior.
+Combining both gives faster, stronger end-to-end confidence than UI-only tests.
+
+Q9) How is CI set up?
+Answer:
+GitHub Actions runs smoke tests in a browser/environment matrix and runs regression
+separately. Reports are uploaded as artifacts for each run.
+
+Q10) How would you expand this framework in a real company?
+Answer:
+I would add:
+- lint/format enforcement (ESLint + Prettier)
+- test ownership/metadata tags
+- optional auth state reuse/global setup
+- data factories for controlled test entities
+- flaky test analytics and quarantining policy
+
+
+========================================================================
+8) TRADE-OFFS / CONSCIOUS LIMITATIONS
+========================================================================
+1. Single worker default is slower but better for visual debugging and stability.
+2. POM adds initial setup effort but pays off for maintainability at scale.
+3. Hybrid API tests require endpoint stability and response contracts.
+4. Matrix CI increases confidence but increases CI runtime/cost.
+
+
+========================================================================
+9) BEST PRACTICES FOLLOWED
+========================================================================
+1. Separation of concerns
+2. Reusability over duplication
+3. Config-driven architecture
+4. Readable and intention-focused test cases
+5. Failure diagnostics by default
+6. CI-ready execution strategy
+7. Practical complexity control (not overengineered)
+
+
+========================================================================
+10) HOW TO DEMO THIS TO INTERVIEWER (LIVE WALKTHROUGH SCRIPT)
+========================================================================
+Step 1: Show structure and explain each folder responsibility.
+Step 2: Open playwright.config.ts + env.config.ts and explain config flow.
+Step 3: Open a page object (example home.page.ts) and show selector abstraction.
+Step 4: Open fixture file and show dependency injection pattern.
+Step 5: Run:
+  npm run test:tag:smoke
+  Explain headed mode + slowMo + one worker for visibility.
+Step 6: Open regression hybrid test and explain API + UI validation.
+Step 7: Show GitHub workflow matrix and explain cross-browser/environment confidence.
+Step 8: Open HTML report and discuss diagnostics.
+
+
+========================================================================
+11) COMMANDS CHEAT SHEET
+========================================================================
+npm test
+npm run test:smoke
+npm run test:regression
+npm run test:tag:smoke
+npm run test:tag:regression
+npm run test:headed
+npm run test:headless
+npm run report
+
+
+========================================================================
+12) FUTURE ENHANCEMENTS (IF ASKED)
+========================================================================
+Keep simple unless required. Good optional next steps:
+1. ESLint + Prettier
+2. Test annotations for ownership/severity
+3. Authentication state reuse for faster suites
+4. Optional global setup/teardown
+5. Visual regression testing (if business needs it)
+
+
+========================================================================
+13) FINAL INTERVIEW CLOSING LINE
+========================================================================
+I designed this framework to balance maintainability, execution flexibility,
+and practical scalability. It is production-style without unnecessary complexity,
+and it can grow incrementally as test volume and team size increase.
+
